@@ -6,7 +6,7 @@ import os
 
 
 
-my_api_key = "50e3ca3a2b11ecdf6cc63be05babd425"  
+my_api_key = st.secrets["tmdb_key"]
 
 
 def fetch_details(movie_id):
@@ -107,3 +107,4 @@ if st.button('Recommend'):
             st.markdown(f"**{movie['title']}**")
             st.caption(f"{movie['year']} • ⭐ {movie['rating']}")
             st.link_button("▶ Trailer", movie['trailer'])
+
