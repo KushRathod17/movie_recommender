@@ -2,7 +2,6 @@ import streamlit as st
 import pickle
 import pandas as pd
 import requests
-import zipfile
 
 def fetch_poster(movie_id):
     response = requests.get(
@@ -25,14 +24,25 @@ def recommend(movie):
     return recommend_movies, recommend_movies_posters
 
 
-movies_dict = pickle.load(open('movies.pkl','rb'))
+movies_dict = pickle.load(open('movies.pkl', 'rb'))
 movies = pd.DataFrame(movies_dict)
 
-if not os.path.exists('similarity.pkl'):
-    with zipfile.ZipFile('similarity.zip', 'r') as zip_ref:
-        zip_ref.extractall()
 
-similarity = pickle.load(open('similarity.pkl','rb'))
+def load_split_file(base_name):
+    combined_data = b""
+    part_num = 1
+    while True:
+        part_name = f"{base_name}.part{part_num}"
+        try:
+            with open(part_name, 'rb') as f:
+                combined_data += f.read()
+            part_num += 1
+        except FileNotFoundError:
+            break
+    return pickle.loads(combined_data)
+
+similarity = load_split_file('similarity.pkl')
+
 
 st.title("Movie Recommender System")
 
@@ -41,7 +51,6 @@ selected_movie_name = st.selectbox(
     movies['title'].values)
 
 if st.button('Recommend'):
-    # FIXED: Changed 'name' to 'names' so it matches the code below
     names, posters = recommend(selected_movie_name)
 
     col1, col2, col3, col4, col5 = st.columns(5)
@@ -60,5 +69,4 @@ if st.button('Recommend'):
         st.image(posters[3])
     with col5:
         st.text(names[4])
-
         st.image(posters[4])
